@@ -3,11 +3,13 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Scanner;
 import java.util.stream.Stream;
 
 class Main {
 
     public static void main(String args[]) throws Exception {
+
         ServerSocket ss = new ServerSocket(3333);
         Socket s = ss.accept();
         DataInputStream din = new DataInputStream(s.getInputStream());
@@ -26,7 +28,7 @@ class Main {
                     str2 = "velkommen \n"
                             + "angiv dit valg \n"
                             + "horoskop : for at se dagens horoskop \n"
-                            + "læs : for at læse fra fil \n"
+                            + "read : for at læse fra fil \n"
                             + "stop : for at stoppe serveren";
                     break;
 
@@ -34,12 +36,17 @@ class Main {
                     str2 = "Meget taler for at dit forår bliver rigtigt interessant";
                     break;
 
-                case "læs":
+                case "read":
                     dout.writeUTF("angiv filnavn");
                     dout.flush();
 
                     str = din.readUTF();
-                    str2 = readLineByLineJava8(str);
+
+                    try {
+                        str2 = readFile(str);
+                    } catch (FileNotFoundException e) {
+                        str2 = "Filen findes ikke.";
+                    }
                     break;
 
                 default:
@@ -69,6 +76,18 @@ class Main {
             e.printStackTrace();
         }
         return contentBuilder.toString();
+    }
+
+    public static String readFile(String fileName) throws FileNotFoundException {
+
+        File file = new File(fileName);
+        Scanner scanner = new Scanner(file);
+        String s = "";
+
+        while (scanner.hasNext()) {
+            s = s + scanner.next() + " ";
+        }
+        return s;
     }
 
 }
